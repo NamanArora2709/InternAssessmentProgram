@@ -401,7 +401,7 @@ function App() {
                 </div>
               ))
             ) : (
-              // Distinct empty states
+              // Distinct empty states (no expenses yet vs no filter results)
               expenses.length === 0 ? (
                 <div className="empty-state">
                   <span className="empty-icon">📅</span>
