@@ -75,7 +75,7 @@ function App() {
     }
   }, []);
 
-  // Sync state to URL Query Parameters
+  // Sync state to URL Query Parameters (search and category filters)
   useEffect(() => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
