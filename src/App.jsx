@@ -40,9 +40,17 @@ const formatDateDisplay = (dateStr) => {
   });
 };
 
+// Helper to get current month display name (e.g. "July 2026")
+const getCurrentMonthDisplayName = () => {
+  return new Date().toLocaleDateString('en-US', {
+    month: 'long',
+    year: 'numeric',
+  });
+};
+
 function App() {
   const todayStr = getLocalTodayString();
-  const defaultMonthStr = getLocalCurrentMonthString();
+  const currentMonthStr = getLocalCurrentMonthString();
 
   // --- State Initialization ---
   // Load expenses on start
@@ -54,21 +62,16 @@ function App() {
   // URL query params initialization
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('All');
-  const [selectedMonth, setSelectedMonth] = useState(defaultMonthStr);
 
   // Parse URL on initial render
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const searchParam = params.get('search');
     const categoryParam = params.get('category');
-    const monthParam = params.get('month');
 
     if (searchParam !== null) setSearchQuery(searchParam);
     if (categoryParam !== null && (categoryParam === 'All' || CATEGORIES.includes(categoryParam))) {
       setCategoryFilter(categoryParam);
-    }
-    if (monthParam !== null && /^\d{4}-\d{2}$/.test(monthParam)) {
-      setSelectedMonth(monthParam);
     }
   }, []);
 
@@ -77,12 +80,11 @@ function App() {
     const params = new URLSearchParams();
     if (searchQuery) params.set('search', searchQuery);
     if (categoryFilter !== 'All') params.set('category', categoryFilter);
-    if (selectedMonth !== defaultMonthStr) params.set('month', selectedMonth);
 
     const newSearch = params.toString();
     const newUrl = `${window.location.pathname}${newSearch ? '?' + newSearch : ''}`;
     window.history.replaceState({}, '', newUrl);
-  }, [searchQuery, categoryFilter, selectedMonth]);
+  }, [searchQuery, categoryFilter]);
 
   // Save to localStorage on change
   useEffect(() => {
@@ -224,48 +226,31 @@ function App() {
   };
 
   // --- Calculations for metrics ---
-  // Get expenses in the selected month
-  const expensesInSelectedMonth = expenses.filter(exp => {
+  // Get expenses in the current actual calendar month
+  const expensesInCurrentMonth = expenses.filter(exp => {
     if (!exp.date) return false;
-    return exp.date.startsWith(selectedMonth);
+    return exp.date.startsWith(currentMonthStr);
   });
 
-  const currentMonthTotal = expensesInSelectedMonth.reduce((sum, exp) => sum + exp.amount, 0);
+  const currentMonthTotal = expensesInCurrentMonth.reduce((sum, exp) => sum + exp.amount, 0);
 
   const categorySubtotals = CATEGORIES.reduce((acc, cat) => {
-    acc[cat] = expensesInSelectedMonth
+    acc[cat] = expensesInCurrentMonth
       .filter(exp => exp.category === cat)
       .reduce((sum, exp) => sum + exp.amount, 0);
     return acc;
   }, {});
 
   // --- Filtering for expense list ---
-  // Note: the list displays expenses filtered by search & category filter, but is NOT restricted to the selected month, 
-  // or is it? The dashboard has a monthly picker which defines "the current-month total". It's best if the list shows 
-  // all expenses that match search/filter, sorted newest first, showing their full details. 
-  // Let's filter the list by search and category filter. Let's keep the list global but let user view all months, 
-  // or restrict it to the selected month? Wait! If the user changes the month, they might want to see the list filtered 
-  // by that month as well. But let's check: "Outcome: A personal expense tracker where you add, edit, search, and filter expenses and always see accurate monthly totals."
-  // If the list is global, search and filter apply to all. This is very powerful, but to make the subtotals and totals matching,
-  // let's filter the list by the selected month as well, or let the list show all months. 
-  // Let's filter the list by the selected month *in addition* to search and category filter. This makes the screen unified, 
-  // showing only the selected month's expenses and subtotals. This matches "Header shows the current-month total and per-category subtotals for the current month, always derived live from the data." 
-  // Let's check: if we filter the list by selected month, it's very consistent. But what if there are no expenses in that month? 
-  // We show empty state "no expenses matching".
-  // Let's apply: Month filter + Category filter + Search query. That is super clean and matches exactly what a user expects!
-  // Wait, let's check if the requirements say: "Search + filter combined show the right rows and the right subtotals."
-  // If the list is filtered by month, search, and category, then the totals and rows match perfectly. Let's implement that!
-  
+  // The list displays all expenses matching search & category filter, sorted newest-first
   const filteredExpenses = expenses
     .filter(exp => {
-      // Month match
-      const matchesMonth = exp.date && exp.date.startsWith(selectedMonth);
       // Category match
       const matchesCategory = categoryFilter === 'All' || exp.category === categoryFilter;
       // Search match (case-insensitive)
       const matchesSearch = exp.description.toLowerCase().includes(searchQuery.toLowerCase());
       
-      return matchesMonth && matchesCategory && matchesSearch;
+      return matchesCategory && matchesSearch;
     })
     // Sort newest first: primary by date (descending), secondary by stable ID/creation time (descending)
     .sort((a, b) => {
@@ -274,9 +259,6 @@ function App() {
       }
       return b.id.localeCompare(a.id);
     });
-
-  // Check if there are any expenses at all in localStorage for this month
-  const hasExpensesInMonth = expenses.some(exp => exp.date && exp.date.startsWith(selectedMonth));
 
   // Category symbols mapping
   const categorySymbols = {
@@ -296,30 +278,27 @@ function App() {
           <p>Manage and track your monthly spending</p>
         </div>
         <div className="month-picker-container">
-          <label htmlFor="month-select">Selected Month</label>
-          <input 
-            type="month" 
-            id="month-select" 
-            className="month-input" 
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-          />
+          <span style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', fontWeight: 600 }}>
+            Current Month
+          </span>
+          <span className="month-input" style={{ cursor: 'default', display: 'inline-block', fontWeight: 600 }}>
+            {getCurrentMonthDisplayName()}
+          </span>
         </div>
       </header>
 
       {/* Metrics Dashboard */}
       <section className="metrics-grid">
         <div className="total-card glass-panel">
-          <span className="total-label">Monthly Total</span>
+          <span className="total-label">{getCurrentMonthDisplayName()} Total</span>
           <span className="total-amount">{formatCurrency(currentMonthTotal)}</span>
         </div>
 
         <div className="glass-panel">
-          <span className="total-label" style={{ display: 'block', marginBottom: '1rem' }}>Category Subtotals</span>
+          <span className="total-label" style={{ display: 'block', marginBottom: '1rem' }}>Category Subtotals ({getCurrentMonthDisplayName()})</span>
           <div className="category-subtotals">
             {CATEGORIES.map(cat => {
               const amount = categorySubtotals[cat] || 0;
-              const percent = currentMonthTotal > 0 ? (amount / currentMonthTotal) * 100 : 0;
               return (
                 <div 
                   key={cat} 
@@ -423,17 +402,17 @@ function App() {
               ))
             ) : (
               // Distinct empty states
-              !hasExpensesInMonth ? (
+              expenses.length === 0 ? (
                 <div className="empty-state">
                   <span className="empty-icon">📅</span>
                   <h3>No expenses yet</h3>
-                  <p>You haven't added any expenses for this month yet. Use the form to add your first expense!</p>
+                  <p>You haven't added any expenses yet. Use the form on the right to add your first expense!</p>
                 </div>
               ) : (
                 <div className="empty-state">
                   <span className="empty-icon">🔍</span>
                   <h3>No results found</h3>
-                  <p>No expenses match your search query or selected category filter. Try widening your criteria.</p>
+                  <p>No expenses match your search query or selected category filter. Try clearing them.</p>
                 </div>
               )
             )}
