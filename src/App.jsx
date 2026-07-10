@@ -21,28 +21,29 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
 
-  // URL query params states
-  const [searchQuery, setSearchQuery] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState('All');
-
-  // Parse URL on initial render
-  useEffect(() => {
+  // URL query params states (initialized directly from URL)
+  const [searchQuery, setSearchQuery] = useState(() => {
     const params = new URLSearchParams(window.location.search);
-    const searchParam = params.get('search');
-    const categoryParam = params.get('category');
-
-    if (searchParam !== null) setSearchQuery(searchParam);
-    if (categoryParam !== null && (categoryParam === 'All' || CATEGORIES.includes(categoryParam))) {
-      setCategoryFilter(categoryParam);
-    }
-  }, []);
+    return params.get('search') || '';
+  });
+  const [categoryFilter, setCategoryFilter] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('category');
+    return cat && (cat === 'All' || CATEGORIES.includes(cat)) ? cat : 'All';
+  });
 
   // Listen to browser back/forward buttons (popstate) to restore active filters
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
-      setSearchQuery(params.get('search') || '');
-      setCategoryFilter(params.get('category') || 'All');
+      const search = params.get('search') || '';
+      const cat = params.get('category') || 'All';
+      setSearchQuery(search);
+      if (cat === 'All' || CATEGORIES.includes(cat)) {
+        setCategoryFilter(cat);
+      } else {
+        setCategoryFilter('All');
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
