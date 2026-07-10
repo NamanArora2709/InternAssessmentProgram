@@ -56,11 +56,16 @@ export const validateField = (name, value) => {
       error = 'Description must be at least 3 characters';
     }
   } else if (name === 'amount') {
-    const num = parseFloat(value);
-    if (!value || isNaN(num)) {
+    const trimmed = String(value).trim();
+    if (!trimmed) {
       error = 'Amount is required';
-    } else if (num <= 0) {
-      error = 'Amount must be a positive number';
+    } else {
+      const num = Number(trimmed);
+      if (isNaN(num) || !isFinite(num)) {
+        error = 'Amount must be a valid number';
+      } else if (num <= 0) {
+        error = 'Amount must be a positive number';
+      }
     }
   } else if (name === 'date') {
     if (!value) {
