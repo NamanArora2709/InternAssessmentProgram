@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { formatDateDisplay, formatCurrency, categorySymbols } from '../utils/helpers';
 
 function ExpenseRow({ expense, onEdit, onDelete }) {
+  // Custom in-app inline delete confirmation state (replaces window.confirm)
   const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
 
   if (isConfirmingDelete) {
