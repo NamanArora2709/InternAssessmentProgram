@@ -45,7 +45,7 @@ export const getCurrentMonthDisplayName = () => {
   });
 };
 
-// Helper to validate individual form fields
+// Helper to validate individual form fields (hardened trimming and range constraints)
 export const validateField = (name, value) => {
   let error = '';
   if (name === 'description') {
