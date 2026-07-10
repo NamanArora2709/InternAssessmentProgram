@@ -37,7 +37,7 @@ function App() {
     }
   }, []);
 
-  // Listen to browser back/forward buttons (popstate)
+  // Listen to browser back/forward buttons (popstate) to restore active filters
   useEffect(() => {
     const handlePopState = () => {
       const params = new URLSearchParams(window.location.search);
