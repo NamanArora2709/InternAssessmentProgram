@@ -7,7 +7,7 @@ function ExpenseList({ filteredExpenses, expenses, onEdit, onDelete }) {
     <section className="list-section">
       <div className="list-section-header">
         <h2>List of Expenses</h2>
-        <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+        <span className="list-count-badge">
           Showing {filteredExpenses.length} record{filteredExpenses.length !== 1 ? 's' : ''}
         </span>
       </div>

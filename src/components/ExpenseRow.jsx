@@ -11,14 +11,14 @@ function ExpenseRow({ expense, onEdit, onDelete }) {
         className="expense-card"
         style={{ borderLeft: `4px solid var(--danger)` }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'center', textAlign: 'center', padding: '0.5rem 0' }}>
-          <span style={{ fontWeight: 600, color: '#fff' }}>
+        <div className="delete-confirm-container">
+          <span className="delete-confirm-title">
             🗑️ Delete "{expense.description}"?
           </span>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <p className="delete-confirm-subtitle">
             This action cannot be undone.
           </p>
-          <div style={{ display: 'flex', gap: '0.75rem', width: '100%', maxWidth: '240px' }}>
+          <div className="delete-confirm-actions">
             <button 
               className="btn btn-secondary" 
               type="button"
@@ -27,9 +27,8 @@ function ExpenseRow({ expense, onEdit, onDelete }) {
               Cancel
             </button>
             <button 
-              className="btn btn-primary" 
+              className="btn btn-primary bg-danger-override" 
               type="button"
-              style={{ backgroundColor: 'var(--danger)' }} 
               onClick={() => {
                 onDelete(expense.id);
                 setIsConfirmingDelete(false);

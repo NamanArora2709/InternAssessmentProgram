@@ -13,10 +13,10 @@ function SummaryHeader({ currentMonthTotal, categorySubtotals }) {
           <p>Manage and track your monthly spending</p>
         </div>
         <div className="month-picker-container">
-          <span style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-secondary)', fontWeight: 600 }}>
+          <span className="month-picker-label">
             Current Month
           </span>
-          <span className="month-input" style={{ cursor: 'default', display: 'inline-block', fontWeight: 600 }}>
+          <span className="month-input month-display">
             {currentMonthName}
           </span>
         </div>
@@ -30,7 +30,7 @@ function SummaryHeader({ currentMonthTotal, categorySubtotals }) {
         </div>
 
         <div className="glass-panel">
-          <span className="total-label" style={{ display: 'block', marginBottom: '1rem' }}>
+          <span className="total-label total-label-block">
             Category Subtotals ({currentMonthName})
           </span>
           <div className="category-subtotals">
