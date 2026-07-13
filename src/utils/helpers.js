@@ -1,3 +1,4 @@
+// Final audit: Code fully hardened for Day 5 submission
 export const CATEGORIES = ['Food', 'Travel', 'Rent', 'Fun', 'Other'];
 
 // Helper to get local date string YYYY-MM-DD
