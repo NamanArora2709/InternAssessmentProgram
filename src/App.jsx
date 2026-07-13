@@ -194,7 +194,7 @@ function App() {
     return acc;
   }, {});
 
-  // --- Filtered Expenses for List Display ---
+  // --- Filtered Expenses for List Display (combining filters and newest-first sorting) ---
   const filteredExpenses = expenses
     .filter(exp => {
       const matchesCategory = categoryFilter === 'All' || exp.category === categoryFilter;
