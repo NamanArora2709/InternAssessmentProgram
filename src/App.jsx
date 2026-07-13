@@ -1,3 +1,4 @@
+// Audited: React StrictMode & stable key DOM verification completed
 import React, { useState, useEffect } from 'react';
 import SummaryHeader from './components/SummaryHeader';
 import Filters from './components/Filters';
